@@ -1,0 +1,10 @@
+spring:
+    config:
+        activate:
+            on-profile: local
+server:
+    port: 9090
+    servlet:
+        context-path: /interview-api
+    error:
+        include-stacktrace: always
