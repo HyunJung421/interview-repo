@@ -21,25 +21,25 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateAccessToken(String name) {
+    public String generateAccessToken(String id) {
         return Jwts.builder()
-                .setSubject(name)
+                .setSubject(id)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(String name) {
+    public String generateRefreshToken(String id) {
         return Jwts.builder()
-                .setSubject(name)
+                .setSubject(id)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractname(String token) {
+    public String extractId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

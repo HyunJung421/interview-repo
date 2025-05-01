@@ -17,6 +17,7 @@ public enum ResultCode {
 
     // user
     SIGNUP_FAILED(400, "E00003", "Sign-up failed"),
+    EMAIL_NOT_FOUND(400, "E00004", "Email not found"),
 
     // common
     INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),

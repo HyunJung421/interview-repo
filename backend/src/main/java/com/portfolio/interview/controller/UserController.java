@@ -41,4 +41,16 @@ public class UserController {
             throw new RestApiException(ResultCode.SIGNUP_FAILED);
         }
     }
+
+    @PostMapping("/find-id")
+    public UserDto.FindIdResponse findId(@RequestBody UserDto.FindIdRequest findIdRequest) {
+        String name = findIdRequest.name();
+        String email = findIdRequest.email();
+
+        try {
+            return userService.findNameAndIdByEmail(name, email);
+        } catch (IllegalArgumentException e) {
+            throw new RestApiException(ResultCode.EMAIL_NOT_FOUND);
+        }
+    }
 }
