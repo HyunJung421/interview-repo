@@ -1,10 +1,29 @@
 spring:
-    config:
-        activate:
-            on-profile: local
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:9091/interview
+    username: admin
+    password: admin@1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties: {}
+  data:
+    redis:
+      host: localhost
+      port: 9092
+      password: null
+      timeout: 2000ms
 server:
-    port: 9090
-    servlet:
-        context-path: /interview-api
-    error:
-        include-stacktrace: always
+  port: 9090
+  servlet:
+    context-path: /interview-api
+  error:
+    include-stacktrace: always
+jwt:
+  secret: aW50ZXJ2aWV3LXJlcG8tc2VjcmV0LWtleS1pbnRlcnZpZXctcmVwby1zZWNyZXQta2V5
