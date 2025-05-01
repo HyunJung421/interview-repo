@@ -1,5 +1,6 @@
 package com.portfolio.interview.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,9 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserService userService;
 
+    @Value("${jwt.refresh.expiration}")
+    private Long refreshTokenTimeOut;
+
     @PostMapping("/login")
     public AuthDto.Response login(@RequestBody LoginDto.Request loginRequest) {
         String id = loginRequest.id();
@@ -36,22 +40,32 @@ public class AuthController {
         // 인증 성공 시 토큰 생성
         String accessToken = jwtUtil.generateAccessToken(id);
         String refreshToken = jwtUtil.generateRefreshToken(id);
-        refreshTokenRepository.saveRefreshToken(id, refreshToken, 1000 * 60 * 60 * 24 * 1); // 1 day
+        refreshTokenRepository.saveRefreshToken(id, refreshToken, refreshTokenTimeOut);
 
         return new AuthDto.Response(accessToken, refreshToken);
     }
 
     @PostMapping("/refresh")
     public AuthDto.Response refresh(@RequestBody LoginDto.Request loginRequest) {
-        String storedRefreshToken = refreshTokenRepository.getRefreshToken(loginRequest.id());
         String refreshToken = loginRequest.refreshToken();
+
+        String id = jwtUtil.extractId(refreshToken);
+        String storedRefreshToken = refreshTokenRepository.getRefreshToken(id);
 
         // redis에 저장된 refreshToken과 일치하는지 확인
         if (storedRefreshToken != null
                 && storedRefreshToken.equals(refreshToken)
                 && jwtUtil.validateToken(refreshToken)) {
             String newAccessToken = jwtUtil.generateAccessToken(loginRequest.id());
-            return new AuthDto.Response(newAccessToken, refreshToken);
+            String newRefreshToken = jwtUtil.generateRefreshToken(loginRequest.id());
+
+            // 기존 refreshToken 삭제
+            refreshTokenRepository.deleteRefreshToken(id);
+
+            // 새로운 refreshToken 저장
+            refreshTokenRepository.saveRefreshToken(id, newRefreshToken, refreshTokenTimeOut);
+
+            return new AuthDto.Response(newAccessToken, newRefreshToken);
         }
 
         throw new RestApiException(ResultCode.INVALID_REFRESH_TOKEN);

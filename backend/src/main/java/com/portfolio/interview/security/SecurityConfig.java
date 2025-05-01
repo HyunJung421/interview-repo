@@ -18,7 +18,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/user/signUp").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }

@@ -27,3 +27,5 @@ server:
     include-stacktrace: always
 jwt:
   secret: aW50ZXJ2aWV3LXJlcG8tc2VjcmV0LWtleS1pbnRlcnZpZXctcmVwby1zZWNyZXQta2V5
+  refresh:
+    expiration: 604800000 # 7 days in milliseconds
