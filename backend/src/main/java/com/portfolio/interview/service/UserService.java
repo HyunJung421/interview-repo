@@ -3,6 +3,9 @@ package com.portfolio.interview.service;
 import com.portfolio.interview.dto.UserDto;
 import com.portfolio.interview.entity.User;
 import com.portfolio.interview.repository.UserRepository;
+import com.portfolio.interview.system.enums.ResultCode;
+import com.portfolio.interview.system.exception.RestApiException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,13 +16,23 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signUp(String id, String name, String password, String email) {
+    /**
+     * 회원가입
+     * 
+     * @param userRequest
+     */
+    public void signUp(UserDto.Request userRequest) {
+        String id = userRequest.id();
+        String name = userRequest.name();
+        String password = userRequest.password();
+        String email = userRequest.email();
+
         if (userRepository.existsById(id)) {
-            throw new IllegalArgumentException("Id is already taken.");
+            throw new RestApiException(ResultCode.DUPLICATE_ID);
         }
 
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already signUped.");
+            throw new RestApiException(ResultCode.DUPLICATE_EMAIL);
         }
 
         User user = User.builder()
@@ -32,15 +45,31 @@ public class UserService {
         userRepository.save(user);
     }
 
+    /**
+     * 로그인 인증
+     * 
+     * @param id
+     * @param password
+     * @return
+     */
     public boolean authenticate(String id, String password) {
         return userRepository.findById(id)
                 .map(user -> passwordEncoder.matches(password, user.getPassword()))
                 .orElse(false);
     }
 
-    public UserDto.FindIdResponse findNameAndIdByEmail(String name, String email) {
+    /**
+     * 아이디 찾기
+     * 
+     * @param findIdRequest
+     * @return
+     */
+    public UserDto.FindIdResponse findNameAndIdByEmail(UserDto.FindIdRequest findIdRequest) {
+        String name = findIdRequest.name();
+        String email = findIdRequest.email();
+
         User user = userRepository.findByEmailAndName(name, email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new RestApiException(ResultCode.EMAIL_NOT_FOUND));
 
         return new UserDto.FindIdResponse(user.getId(), user.getCreatedAt());
     }
