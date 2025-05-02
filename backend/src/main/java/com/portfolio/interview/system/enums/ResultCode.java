@@ -16,8 +16,9 @@ public enum ResultCode {
     LOGOUT_FAILED(401, "E00002", "Logout failed"),
 
     // user
-    SIGNUP_FAILED(400, "E00003", "Sign-up failed"),
-    EMAIL_NOT_FOUND(400, "E00004", "Email not found"),
+    DUPLICATE_ID(400, "E00003", "Id is already taken"),
+    DUPLICATE_EMAIL(400, "E00004", "Email is already taken"),
+    EMAIL_NOT_FOUND(400, "E00005", "Email not found"),
 
     // common
     INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),
