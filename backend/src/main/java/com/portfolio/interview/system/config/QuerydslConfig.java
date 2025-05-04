@@ -1,23 +1,21 @@
-// package com.portfolio.interview.system.config;
+package com.portfolio.interview.system.config;
 
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-// import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-// import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
-// @Configuration
-// public class QuerydslConfig {
-    
-//     private final EntityManager entityManager;
+@Configuration
+public class QuerydslConfig {
 
-//     public QuerydslConfig(EntityManager entityManager) {
-//         this.entityManager = entityManager;
-//     }
+    @PersistenceContext
+    private EntityManager entityManager;
 
-//     @Bean
-//     public JPAQueryFactory jpaQueryFactory() {
-//         return new JPAQueryFactory(entityManager);
-//     }
-// }
+    @Bean
+    public JPAQueryFactory jpaQueryFactory() {
+        return new JPAQueryFactory(entityManager);
+    }
+}

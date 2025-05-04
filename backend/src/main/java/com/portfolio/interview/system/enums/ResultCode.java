@@ -23,6 +23,8 @@ public enum ResultCode {
     INVALID_ID_OR_EMAIL(400, "E00007", "Id or email is incorrect"),
     INVALID_PASSWORD(400, "E00008", "Password is incorrect"),
     EMAIL_SEND_FAILED(500, "E00009", "Email sending failed"),
+    USER_SIGNUP_FAILED(500, "E00010", "User signup failed"),
+    USER_UPDATE_FAILED(500, "E00011", "User update failed"),
 
     // common
     INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),

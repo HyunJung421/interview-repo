@@ -6,28 +6,36 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.interview.dto.UserDto;
 import com.portfolio.interview.entity.User;
+import com.portfolio.interview.entity.UsersRoles;
 import com.portfolio.interview.repository.UserRepository;
+import com.portfolio.interview.repository.UsersRolesRepository;
 import com.portfolio.interview.system.enums.ResultCode;
+import com.portfolio.interview.system.enums.Roles;
 import com.portfolio.interview.system.exception.RestApiException;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
+    private final UsersRolesRepository usersRolesRepository;
 
     /**
      * 회원가입
      * 
      * @param userRequest
      */
+    @Transactional
     public void signUp(UserDto.Request userRequest) {
         String id = userRequest.id();
         String name = userRequest.name();
@@ -49,7 +57,22 @@ public class UserService {
                 .email(email)
                 .build();
 
-        userRepository.save(user);
+        // user 테이블에 저장
+        User savedUser = userRepository.save(user);
+
+        Long userSeq = savedUser.getSeq();
+        Long roleSeq = Roles.USER.getSeq();
+
+        if (userSeq == null) {
+            throw new RestApiException(ResultCode.USER_SIGNUP_FAILED);
+        }
+
+        UsersRoles usersRoles = UsersRoles.builder()
+                .userSeq(userSeq)
+                .roleSeq(roleSeq)
+                .build();
+
+        usersRolesRepository.save(usersRoles);
     }
 
     /**
