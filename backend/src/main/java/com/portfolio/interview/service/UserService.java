@@ -1,26 +1,41 @@
 package com.portfolio.interview.service;
 
-import com.portfolio.interview.dto.UserDto;
-import com.portfolio.interview.entity.User;
-import com.portfolio.interview.repository.UserRepository;
-import com.portfolio.interview.system.enums.ResultCode;
-import com.portfolio.interview.system.exception.RestApiException;
+import java.security.SecureRandom;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.portfolio.interview.dto.UserDto;
+import com.portfolio.interview.entity.User;
+import com.portfolio.interview.entity.UsersRoles;
+import com.portfolio.interview.repository.UserRepository;
+import com.portfolio.interview.repository.UsersRolesRepository;
+import com.portfolio.interview.system.enums.ResultCode;
+import com.portfolio.interview.system.enums.Roles;
+import com.portfolio.interview.system.exception.RestApiException;
+
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JavaMailSender mailSender;
+    private final UsersRolesRepository usersRolesRepository;
 
     /**
      * 회원가입
      * 
      * @param userRequest
      */
+    @Transactional
     public void signUp(UserDto.Request userRequest) {
         String id = userRequest.id();
         String name = userRequest.name();
@@ -42,7 +57,22 @@ public class UserService {
                 .email(email)
                 .build();
 
-        userRepository.save(user);
+        // user 테이블에 저장
+        User savedUser = userRepository.save(user);
+
+        Long userSeq = savedUser.getSeq();
+        Long roleSeq = Roles.USER.getSeq();
+
+        if (userSeq == null) {
+            throw new RestApiException(ResultCode.USER_SIGNUP_FAILED);
+        }
+
+        UsersRoles usersRoles = UsersRoles.builder()
+                .userSeq(userSeq)
+                .roleSeq(roleSeq)
+                .build();
+
+        usersRolesRepository.save(usersRoles);
     }
 
     /**
@@ -68,9 +98,78 @@ public class UserService {
         String name = findIdRequest.name();
         String email = findIdRequest.email();
 
-        User user = userRepository.findByEmailAndName(name, email)
-                .orElseThrow(() -> new RestApiException(ResultCode.EMAIL_NOT_FOUND));
+        User user = userRepository.findByNameAndEmail(name, email)
+                .orElseThrow(() -> new RestApiException(ResultCode.INVALID_NAME_OR_EMAIL));
 
         return new UserDto.FindIdResponse(user.getId(), user.getCreatedAt());
+    }
+
+    /**
+     * 비밀번호 찾기
+     * 
+     * @param findPasswordRequest
+     * @return
+     */
+    public UserDto.FindPasswordResponse findPasswordByIdAndEmail(UserDto.FindPasswordRequest findPasswordRequest) {
+        String id = findPasswordRequest.id();
+        String email = findPasswordRequest.email();
+
+        // 사용자 검증
+        User user = userRepository.findById(id)
+                .filter(u -> u.getEmail().equals(email))
+                .orElseThrow(() -> new RestApiException(ResultCode.INVALID_ID_OR_EMAIL));
+
+        // 임시 비밀번호 생성
+        String temporaryPassword = generateTemporaryPassword();
+
+        // 비밀번호 업데이트
+        user.setPassword(passwordEncoder.encode(temporaryPassword));
+        userRepository.save(user);
+
+        // 이메일 전송
+        sendTemporaryPasswordEmail(email, temporaryPassword);
+
+        return new UserDto.FindPasswordResponse(true, "Temporary password sent to your email.");
+    }
+
+    /**
+     * 임시 비밀번호 생성
+     * 
+     * @param id
+     * @param newPassword
+     */
+    private String generateTemporaryPassword() {
+        int length = 10;
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom secureRandom = new SecureRandom();
+        StringBuilder tempPassword = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            int index = secureRandom.nextInt(characters.length());
+            tempPassword.append(characters.charAt(index));
+        }
+
+        return tempPassword.toString();
+    }
+
+    /**
+     * 이메일 전송
+     * 
+     * @param email
+     * @param temporaryPassword
+     */
+    private void sendTemporaryPasswordEmail(String email, String temporaryPassword) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(email);
+            helper.setSubject("Temporary Password");
+            helper.setText("Your temporary password is: " + temporaryPassword);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            throw new RestApiException(ResultCode.EMAIL_SEND_FAILED);
+        }
     }
 }

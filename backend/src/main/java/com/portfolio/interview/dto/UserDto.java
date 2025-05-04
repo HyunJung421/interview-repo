@@ -11,4 +11,10 @@ public record UserDto() {
 
     public record FindIdResponse(String id, LocalDateTime createdAt) {
     }
+
+    public record FindPasswordRequest(String id, String email) {
+    }
+
+    public record FindPasswordResponse(boolean result, String message) {
+    }
 }
