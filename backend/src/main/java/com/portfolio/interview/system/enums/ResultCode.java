@@ -18,7 +18,11 @@ public enum ResultCode {
     // user
     DUPLICATE_ID(400, "E00003", "Id is already taken"),
     DUPLICATE_EMAIL(400, "E00004", "Email is already taken"),
-    EMAIL_NOT_FOUND(400, "E00005", "Email not found"),
+    INVALID_NAME_OR_EMAIL(400, "E00005", "Name or email is incorrect"),
+    NON_EXISTENT_ID(404, "E00006", "Id does not exist"),
+    INVALID_ID_OR_EMAIL(400, "E00007", "Id or email is incorrect"),
+    INVALID_PASSWORD(400, "E00008", "Password is incorrect"),
+    EMAIL_SEND_FAILED(500, "E00009", "Email sending failed"),
 
     // common
     INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),

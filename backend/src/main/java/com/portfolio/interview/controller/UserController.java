@@ -43,4 +43,16 @@ public class UserController {
         log.info("Find ID request received for email: {}", findIdRequest.email());
         return userService.findNameAndIdByEmail(findIdRequest);
     }
+
+    /**
+     * 비밀번호 찾기
+     * 
+     * @param findPasswordRequest
+     * @return
+     */
+    @PostMapping("/find-password")
+    public UserDto.FindPasswordResponse findPassword(@RequestBody UserDto.FindPasswordRequest findPasswordRequest) {
+        log.info("Find password request received for user: {}", findPasswordRequest.id());
+        return userService.findPasswordByIdAndEmail(findPasswordRequest);
+    }
 }
