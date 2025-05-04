@@ -3,9 +3,9 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:postgresql://localhost:9091/interview
-    username: admin
-    password: admin@1234
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
@@ -15,10 +15,21 @@ spring:
     properties: {}
   data:
     redis:
-      host: localhost
-      port: 9092
-      password: null
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
       timeout: 2000ms
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   port: 9090
   servlet:
@@ -26,6 +37,6 @@ server:
   error:
     include-stacktrace: always
 jwt:
-  secret: aW50ZXJ2aWV3LXJlcG8tc2VjcmV0LWtleS1pbnRlcnZpZXctcmVwby1zZWNyZXQta2V5
+  secret: ${JWT_SECRET}
   refresh:
-    expiration: 604800000 # 7 days in milliseconds
+    expiration: ${JWT_REFRESH_EXPIRATION}
