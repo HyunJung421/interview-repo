@@ -32,12 +32,11 @@ public class AuthService {
         authenticateUser(id, password);
 
         // 인증 성공 시 토큰 생성
-        String accessToken = createAccessToken(id);
-        String refreshToken = createRefreshToken(id);
+        AuthDto.Tokens tokens = generateTokens(id);
 
-        saveRefreshToken(id, refreshToken);
+        saveRefreshToken(id, tokens.getRefreshToken());
 
-        return new AuthDto.Response(accessToken, refreshToken);
+        return new AuthDto.Response(tokens.getAccessToken(), tokens.getRefreshToken());
     }
 
     // 리프레시 토큰 처리
@@ -75,9 +74,22 @@ public class AuthService {
         return new LogoutDto.Response(true, "Logout successfully");
     }
 
+    // 토큰 생성
+    private AuthDto.Tokens generateTokens(String id) {
+        String accessToken = createAccessToken(id);
+        String refreshToken = createRefreshToken(id);
+
+        return new AuthDto.Tokens(accessToken, refreshToken);
+    }
+
     // 사용자 인증
     private void authenticateUser(String id, String password) {
-        if (!userService.authenticate(id, password)) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(id, password)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } catch (AuthenticationException e) {
             throw new RestApiException(ResultCode.INVALID_AUTH_INFO);
         }
     }

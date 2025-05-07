@@ -76,19 +76,6 @@ public class UserService {
     }
 
     /**
-     * 로그인 인증
-     * 
-     * @param id
-     * @param password
-     * @return
-     */
-    public boolean authenticate(String id, String password) {
-        return userRepository.findById(id)
-                .map(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElse(false);
-    }
-
-    /**
      * 아이디 찾기
      * 
      * @param findIdRequest
