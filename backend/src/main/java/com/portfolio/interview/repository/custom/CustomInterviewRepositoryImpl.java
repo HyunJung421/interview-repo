@@ -30,6 +30,7 @@ public class CustomInterviewRepositoryImpl extends QuerydslRepositorySupport imp
         List<InterviewDto.InterviewInfo> list = queryFactory.select(Projections.constructor(
                                                     InterviewDto.InterviewInfo.class,
                                                     interview.key,
+                                                    interview.categories.name,
                                                     interview.title,
                                                     interview.updatedAt
                                                 ))

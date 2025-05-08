@@ -17,8 +17,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/user/**").permitAll()
+                        .requestMatchers("/auth/**", "/user/**", "/interview/**").permitAll()   // user, interview 임시로 지정함
                         .anyRequest().authenticated());
         return http.build();
     }
