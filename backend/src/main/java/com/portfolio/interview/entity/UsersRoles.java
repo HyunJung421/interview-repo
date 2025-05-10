@@ -1,9 +1,10 @@
 package com.portfolio.interview.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,31 +14,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@IdClass(UsersRoleId.class)
 @Table(name = "users_roles")
 public class UsersRoles {
-    @Id
-    @Column(name = "user_seq", nullable = false)
-    private Long userSeq;
 
-    @Id
-    @Column(name = "role_seq", nullable = false)
-    private Long roleSeq;
+    @EmbeddedId
+    private UsersRolesId id;
 
-    // Getter와 Setter
-    public Long getUserSeq() {
-        return userSeq;
+    @MapsId("user")
+    @ManyToOne
+    @JoinColumn(name = "user_seq", nullable = false)
+    private User user;
+
+    @MapsId("roles")
+    @ManyToOne
+    @JoinColumn(name = "role_seq", nullable = false)
+    private Roles roles;
+
+    public User getUser() {
+        return user;
     }
 
-    public void setUserSeq(Long userSeq) {
-        this.userSeq = userSeq;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public Long getRoleSeq() {
-        return roleSeq;
+    public Roles getRoles() {
+        return roles;
     }
 
-    public void setRoleSeq(Long roleSeq) {
-        this.roleSeq = roleSeq;
+    public void setRoles(Roles roles) {
+        this.roles = roles;
     }
+
 }

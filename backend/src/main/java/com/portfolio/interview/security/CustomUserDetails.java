@@ -1,15 +1,20 @@
 package com.portfolio.interview.security;
 
-public class CustomUserDetails implements UserDetails {
-    private final String id;
-    private final String password;
-    private final List<GrantedAuthority> authorities;
+import java.util.Collection;
+import java.util.List;
 
-    public CustomUserDetails(String id, String password, List<GrantedAuthority> authorities) {
-        this.id = id;
-        this.password = password;
-        this.authorities = authorities;
-    }
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.portfolio.interview.entity.User;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class CustomUserDetails implements UserDetails {
+
+    private final User user;
+    private final List<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -18,12 +23,16 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return id;
+        return user.getId();
+    }
+
+    public String getUserId() {
+        return user.getId();
     }
 
     @Override

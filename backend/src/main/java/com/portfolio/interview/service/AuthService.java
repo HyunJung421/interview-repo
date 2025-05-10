@@ -1,7 +1,11 @@
 package com.portfolio.interview.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.portfolio.interview.dto.AuthDto;
 import com.portfolio.interview.dto.LoginDto;
@@ -12,13 +16,16 @@ import com.portfolio.interview.system.enums.ResultCode;
 import com.portfolio.interview.system.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenTimeOut;
@@ -28,15 +35,24 @@ public class AuthService {
         String id = loginRequest.id();
         String password = loginRequest.password();
 
-        // 사용자 인증
-        authenticateUser(id, password);
+        // 사용자 정보 조회
+        UserDetails userDetails = userDetailsService.loadUserByUsername(id);
+
+        if (userDetails == null) {
+            throw new RestApiException(ResultCode.USER_NOT_FOUND);
+        }
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new RestApiException(ResultCode.INVALID_PASSWORD);
+        }
 
         // 인증 성공 시 토큰 생성
         AuthDto.Tokens tokens = generateTokens(id);
 
-        saveRefreshToken(id, tokens.getRefreshToken());
+        saveRefreshToken(id, tokens.refreshToken());
 
-        return new AuthDto.Response(tokens.getAccessToken(), tokens.getRefreshToken());
+        return new AuthDto.Response(tokens.accessToken(), tokens.refreshToken());
     }
 
     // 리프레시 토큰 처리
@@ -44,7 +60,8 @@ public class AuthService {
         String refreshToken = loginRequest.refreshToken();
 
         // Refresh Token 유효성 검사
-        String id = validateRefreshToken(refreshToken);
+        jwtUtil.validateRefreshToken(refreshToken);
+        String id = jwtUtil.extractIdFromRefreshToken(refreshToken);
 
         // 새로운 Access Token 및 Refresh Token 생성
         String newAccessToken = createAccessToken(id);
@@ -58,8 +75,17 @@ public class AuthService {
 
     // 로그아웃 처리
     public LogoutDto.Response logout(LoginDto.Request loginRequest) {
-        String id = loginRequest.id();
         String refreshToken = loginRequest.refreshToken();
+
+        // Refresh Token 유효성 검사
+        if (!StringUtils.hasText(refreshToken)) {
+            throw new RestApiException(ResultCode.INVALID_REFRESH_TOKEN);
+        }
+
+        jwtUtil.validateRefreshToken(refreshToken);
+
+        // Refresh Token에서 ID 추출
+        String id = jwtUtil.extractIdFromRefreshToken(refreshToken);
 
         // Redis에서 Refresh Token 삭제
         String storedRefreshToken = refreshTokenRepository.getRefreshToken(id);
@@ -71,7 +97,7 @@ public class AuthService {
 
         // 성공 조건 처리
         refreshTokenRepository.deleteRefreshToken(id);
-        return new LogoutDto.Response(true, "Logout successfully");
+        return new LogoutDto.Response("Logout successfully");
     }
 
     // 토큰 생성
@@ -82,34 +108,9 @@ public class AuthService {
         return new AuthDto.Tokens(accessToken, refreshToken);
     }
 
-    // 사용자 인증
-    private void authenticateUser(String id, String password) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(id, password)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (AuthenticationException e) {
-            throw new RestApiException(ResultCode.INVALID_AUTH_INFO);
-        }
-    }
-
     // Refresh Token 저장
     private void saveRefreshToken(String id, String refreshToken) {
         refreshTokenRepository.saveRefreshToken(id, refreshToken, refreshTokenTimeOut);
-    }
-
-    private String validateRefreshToken(String refreshToken) {
-        String id = jwtUtil.extractId(refreshToken);
-        String storedRefreshToken = refreshTokenRepository.getRefreshToken(id);
-
-        if (storedRefreshToken == null
-                || !storedRefreshToken.equals(refreshToken)
-                || !jwtUtil.validateToken(refreshToken)) {
-            throw new RestApiException(ResultCode.INVALID_REFRESH_TOKEN);
-        }
-
-        return id;
     }
 
     private void updateRefreshToken(String id, String newRefreshToken) {

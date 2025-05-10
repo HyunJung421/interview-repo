@@ -37,10 +37,9 @@ public class User {
     @Column(nullable = false)
     private String email;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_seq"))
-    @Column(name = "role_seq")
-    private Set<String> roles;
+    // users_roles 테이블과 매핑
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UsersRoles> roles;
 
     @CreatedDate
     @Column(updatable = false)
