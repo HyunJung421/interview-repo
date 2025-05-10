@@ -6,7 +6,6 @@ const LoginPage = () => {
         <h1 className="text-2xl font-bold text-center text-blue-900 mb-6">면접 REPO</h1>
         <form>
           <div className="mb-4">
-            {/* <label htmlFor="username" className="block text-gray-700 mb-2">아이디</label> */}
             <input
               type="text"
               id="username"
@@ -15,7 +14,6 @@ const LoginPage = () => {
             />
           </div>
           <div className="mb-6">
-            {/* <label htmlFor="password" className="block text-gray-700 mb-2">비밀번호</label> */}
             <input
               type="password"
               id="password"
