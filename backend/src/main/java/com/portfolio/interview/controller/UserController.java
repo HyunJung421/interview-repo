@@ -29,7 +29,7 @@ public class UserController {
     public SignUpDto.Response signUp(@RequestBody UserDto.Request userRequest) {
         log.info("Sign-up request received for user: {}", userRequest.id());
         userService.signUp(userRequest);
-        return new SignUpDto.Response(true, "User signUp successfully");
+        return new SignUpDto.Response("User signUp successfully");
     }
 
     /**

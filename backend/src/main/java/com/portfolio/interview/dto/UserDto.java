@@ -15,6 +15,6 @@ public record UserDto() {
     public record FindPasswordRequest(String id, String email) {
     }
 
-    public record FindPasswordResponse(boolean result, String message) {
+    public record FindPasswordResponse(String message) {
     }
 }

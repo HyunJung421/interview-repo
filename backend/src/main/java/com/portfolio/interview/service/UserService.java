@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.portfolio.interview.dto.UserDto;
+import com.portfolio.interview.entity.Roles;
 import com.portfolio.interview.entity.User;
 import com.portfolio.interview.entity.UsersRoles;
+import com.portfolio.interview.entity.UsersRolesId;
+import com.portfolio.interview.repository.RolesRepository;
 import com.portfolio.interview.repository.UserRepository;
 import com.portfolio.interview.repository.UsersRolesRepository;
 import com.portfolio.interview.system.enums.ResultCode;
-import com.portfolio.interview.system.enums.Roles;
 import com.portfolio.interview.system.exception.RestApiException;
 
 import jakarta.mail.internet.MimeMessage;
@@ -29,6 +31,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JavaMailSender mailSender;
     private final UsersRolesRepository usersRolesRepository;
+    private final RolesRepository rolesRepository;
 
     /**
      * 회원가입
@@ -37,55 +40,75 @@ public class UserService {
      */
     @Transactional
     public void signUp(UserDto.Request userRequest) {
-        String id = userRequest.id();
-        String name = userRequest.name();
-        String password = userRequest.password();
-        String email = userRequest.email();
+        validateSignUpRequest(userRequest);
 
-        if (userRepository.existsById(id)) {
-            throw new RestApiException(ResultCode.DUPLICATE_ID);
-        }
+        User savedUser = saveUser(userRequest);
 
-        if (userRepository.existsByEmail(email)) {
-            throw new RestApiException(ResultCode.DUPLICATE_EMAIL);
-        }
+        Roles userRoles = findUserRole();
 
-        User user = User.builder()
-                .id(id)
-                .name(name)
-                .password(passwordEncoder.encode(password))
-                .email(email)
-                .build();
-
-        // user 테이블에 저장
-        User savedUser = userRepository.save(user);
-
-        Long userSeq = savedUser.getSeq();
-        Long roleSeq = Roles.USER.getSeq();
-
-        if (userSeq == null) {
-            throw new RestApiException(ResultCode.USER_SIGNUP_FAILED);
-        }
-
-        UsersRoles usersRoles = UsersRoles.builder()
-                .userSeq(userSeq)
-                .roleSeq(roleSeq)
-                .build();
-
-        usersRolesRepository.save(usersRoles);
+        saveUserRoleMapping(savedUser, userRoles);
     }
 
     /**
-     * 로그인 인증
+     * 회원가입 요청 검증
      * 
-     * @param id
-     * @param password
+     * @param userRequest
+     */
+    private void validateSignUpRequest(UserDto.Request userRequest) {
+        if (userRepository.existsById(userRequest.id())) {
+            throw new RestApiException(ResultCode.DUPLICATE_ID);
+        }
+
+        if (userRepository.existsByEmail(userRequest.email())) {
+            throw new RestApiException(ResultCode.DUPLICATE_EMAIL);
+        }
+    }
+
+    /**
+     * 회원가입 요청 처리
+     * 
+     * @param userRequest
      * @return
      */
-    public boolean authenticate(String id, String password) {
-        return userRepository.findById(id)
-                .map(user -> passwordEncoder.matches(password, user.getPassword()))
-                .orElse(false);
+    private User saveUser(UserDto.Request userRequest) {
+        User user = User.builder()
+                .id(userRequest.id())
+                .name(userRequest.name())
+                .password(passwordEncoder.encode(userRequest.password()))
+                .email(userRequest.email())
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    /**
+     * 사용자 역할 찾기
+     * 
+     * @return
+     */
+    private Roles findUserRole() {
+        var userRole = com.portfolio.interview.system.enums.Roles.USER;
+
+        return rolesRepository.findByName(userRole.name())
+                .orElseThrow(() -> new RestApiException(ResultCode.ROLE_NOT_FOUND));
+    }
+
+    /**
+     * 사용자 역할 매핑 저장
+     * 
+     * @param savedUser
+     * @param userRoles
+     */
+    private void saveUserRoleMapping(User savedUser, Roles userRoles) {
+        UsersRolesId id = new UsersRolesId(savedUser.getSeq(), userRoles.getSeq());
+
+        UsersRoles usersRoles = UsersRoles.builder()
+                .id(id)
+                .user(savedUser)
+                .roles(userRoles)
+                .build();
+
+        usersRolesRepository.save(usersRoles);
     }
 
     /**
@@ -129,7 +152,7 @@ public class UserService {
         // 이메일 전송
         sendTemporaryPasswordEmail(email, temporaryPassword);
 
-        return new UserDto.FindPasswordResponse(true, "Temporary password sent to your email.");
+        return new UserDto.FindPasswordResponse("Temporary password sent to your email.");
     }
 
     /**

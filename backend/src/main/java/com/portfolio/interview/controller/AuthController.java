@@ -24,21 +24,39 @@ public class AuthController {
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenTimeOut;
 
+    /**
+     * 로그인
+     *
+     * @param loginRequest
+     * @return
+     */
     @PostMapping("/login")
     public AuthDto.Response login(@RequestBody LoginDto.Request loginRequest) {
         log.info("Login request received for user: {}", loginRequest.id());
         return authService.login(loginRequest);
     }
 
+    /**
+     * 리프레시 토큰
+     *
+     * @param loginRequest
+     * @return
+     */
     @PostMapping("/refresh")
     public AuthDto.Response refresh(@RequestBody LoginDto.Request loginRequest) {
         log.info("Refresh request received for user: {}", loginRequest.id());
         return authService.refresh(loginRequest);
     }
 
+    /**
+     * 로그아웃
+     *
+     * @param loginRequest
+     * @return
+     */
     @PostMapping("/logout")
     public LogoutDto.Response logout(@RequestBody LoginDto.Request loginRequest) {
-        log.info("Logout request received for user: {}", loginRequest.id());
+        log.info("Logout request received for refreshToken {}", loginRequest.refreshToken());
         return authService.logout(loginRequest);
     }
 }
