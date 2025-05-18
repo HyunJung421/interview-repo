@@ -12,21 +12,28 @@ import org.springframework.util.StringUtils;
 
 import com.portfolio.interview.dto.InterviewDto;
 import com.portfolio.interview.entity.Interview;
+import com.portfolio.interview.security.SecurityUserService;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+
 public class CustomInterviewRepositoryImpl extends QuerydslRepositorySupport implements CustomInterviewRepository {
 
-    public CustomInterviewRepositoryImpl(JPAQueryFactory queryFactory) {
+    public CustomInterviewRepositoryImpl(JPAQueryFactory queryFactory, SecurityUserService securityUserService) {
         super(Interview.class);
         this.queryFactory = queryFactory;
+        this.securityUserService = securityUserService;
     }
     
     private final JPAQueryFactory queryFactory;
+    private final SecurityUserService securityUserService;
 
     @Override
     public Page<InterviewDto.InterviewInfo> findInterviewByConditions(InterviewDto.ListRequest conditions, Pageable pageable) {
+
+        Long userSeq = securityUserService.getUserSeq();
+
         List<InterviewDto.InterviewInfo> list = queryFactory.select(Projections.constructor(
                                                     InterviewDto.InterviewInfo.class,
                                                     interview.key,
@@ -35,13 +42,13 @@ public class CustomInterviewRepositoryImpl extends QuerydslRepositorySupport imp
                                                     interview.updatedAt
                                                 ))
                                                 .from(interview)
-                                                .where(titleContains(conditions.title()), categoryEquals(conditions.category()))
+                                                .where(interview.user.seq.eq(userSeq), titleContains(conditions.title()), categoryEquals(conditions.category()))
                                                 .orderBy(interview.updatedAt.desc())
                                                 .fetch();
 
         long total = queryFactory.select(interview.count())
                     .from(interview)
-                    .where(titleContains(conditions.title()), categoryEquals(conditions.category()))
+                    .where(interview.user.seq.eq(userSeq), titleContains(conditions.title()), categoryEquals(conditions.category()))
                     .fetchOne();
 
         return new PageImpl<>(list, pageable, total);
