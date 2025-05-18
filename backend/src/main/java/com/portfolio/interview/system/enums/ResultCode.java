@@ -22,6 +22,7 @@ public enum ResultCode {
     LOGOUT_FAILED(500, "E00008", "Logout failed"),
     REFRESH_TOKEN_NOT_FOUND(404, "E00009", "Refresh token not found"),
     UNAUTHORIZED_ACCESS(401, "E00010", "Unauthorized access"),
+    UNAUTHORIZED_USER(401, "E00011", "Unauthorized user"),
 
     // user
     DUPLICATE_ID(400, "E20003", "Id is already taken"),
