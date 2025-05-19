@@ -9,5 +9,13 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     }
+  },
+  server: {
+    proxy: {
+      '/interview-api': {
+        target: 'http://localhost:9090',
+        changeOrigin: true,
+      }
+    }
   }
 })
