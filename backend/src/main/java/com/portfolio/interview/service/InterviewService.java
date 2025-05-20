@@ -11,6 +11,7 @@ import com.portfolio.interview.entity.Categories;
 import com.portfolio.interview.entity.Interview;
 import com.portfolio.interview.repository.CategoriesRepository;
 import com.portfolio.interview.repository.InterviewRepository;
+import com.portfolio.interview.security.SecurityUserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,11 +21,11 @@ public class InterviewService {
     
     private final CategoriesRepository categoriesRepository;
     private final InterviewRepository interviewRepository;
-    
+    private final SecurityUserService securityUserService;
 
     public InterviewDto.ListResponse getInterviewList(InterviewDto.ListRequest params) {
 
-        Pageable pageable = PageRequest.of(params.pageInfo().currentPage() - 1, params.pageInfo().perPage());
+        Pageable pageable = PageRequest.of(params.currentPage() - 1, params.perPage());
 
         Page<InterviewDto.InterviewInfo> list = interviewRepository.findInterviewByConditions(params, pageable);
 
@@ -40,7 +41,7 @@ public class InterviewService {
         Categories categories = categoriesRepository.findByName(params.category());
         
         Interview interview = Interview.builder()
-                                        .user(null)
+                                        .user(securityUserService.getUserDetails())
                                         .categories(categories)
                                         .title(params.title())
                                         .content(params.content())
