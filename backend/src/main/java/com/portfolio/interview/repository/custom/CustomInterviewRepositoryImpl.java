@@ -17,7 +17,9 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CustomInterviewRepositoryImpl extends QuerydslRepositorySupport implements CustomInterviewRepository {
 
     public CustomInterviewRepositoryImpl(JPAQueryFactory queryFactory, SecurityUserService securityUserService) {
@@ -44,6 +46,8 @@ public class CustomInterviewRepositoryImpl extends QuerydslRepositorySupport imp
                                                 .from(interview)
                                                 .where(interview.user.seq.eq(userSeq), titleContains(conditions.title()), categoryEquals(conditions.category()))
                                                 .orderBy(interview.updatedAt.desc())
+                                                .offset(pageable.getOffset())
+                                                .limit(pageable.getPageSize())
                                                 .fetch();
 
         long total = queryFactory.select(interview.count())

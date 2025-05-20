@@ -11,7 +11,8 @@ public class InterviewDto {
         String title, 
         String category, 
         Boolean bookmarked,
-        PageDto.Request pageInfo
+        int currentPage,
+        int perPage
     ){}
 
     // 면접 질문 조회 Response
