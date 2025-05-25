@@ -1,4 +1,6 @@
 export const API_URL = {
+    BASE: '/interview-api',
+
     // Auth
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
