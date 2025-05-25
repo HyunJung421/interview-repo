@@ -1,10 +1,11 @@
 import React, { createContext, useState } from 'react';
+import { PATH } from '@/constants/path';
 
 interface AuthContextType {
+    userName: string | null,
     accessToken: string | null,
-    login: (accessToken: string, refreshToken: string) => void;
-    logout: () => void;
-    refresh: (accessToken: string, refreshToken: string) => void;
+    setSession: (accessToken: string, refreshToken: string, userName: string) => void;
+    removeSession: () => void;
     isAuthenticated: boolean;
 }
 
@@ -12,34 +13,29 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | null>(null); 
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-
-    // useState: 상태를 만들고 관리할 수 있음
-    // accessToken이 state 선언 (변수 같은 느낌)
-    // setAccessToken으로 state 변경 (메서드 같은 느낌)
-    // <string | null>은 값이 문자열 또는 null이 될 수 있다는 의미
     // useState(() => {}) 형태는 지연 초기화 방식임. 컴포넌트가 처음 렌더링될 때 한 번만 조회함
     // useState(localStorage.getItem('accessToken')) 이런 형태는 컴포넌트가 매 렌더링마다 조회되기 때문에 불필요한 연산이 일어날 수 있음
+    const [userName, setUserName] = useState<string | null>(() => 
+        localStorage.getItem('userName')
+    );
     const [accessToken, setAccessToken] = useState<string | null>(() => 
         localStorage.getItem('accessToken')
     );
     
-    const login = (newAccessToken: string, refreshToken: string) => {
-        localStorage.setItem('accessToken', newAccessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        setAccessToken(newAccessToken);
-    };
-
-    const logout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        setAccessToken(null);
-        window.location.href = '/login'; // 로그인 페이지로 이동
-    };
-
-    const refresh = (newAccessToken: string, newRefreshToken: string) => {
+    const setSession = (newAccessToken: string, newRefreshToken: string, userName: string) => {
         localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
+        localStorage.setItem('userName', userName);
         setAccessToken(newAccessToken);
+        setUserName(userName);
+    };
+
+    const removeSession = () => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('userName');
+        setAccessToken(null);
+        window.location.href = PATH.LOGIN; // 로그인 페이지로 이동
     };
 
     // useEffect: 화면이 처음 렌더링되면 실행되는 코드
@@ -57,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isAuthenticated = !!accessToken;
 
     return (
-        <AuthContext.Provider value={{ accessToken, login, logout, refresh, isAuthenticated }}>
+        <AuthContext.Provider value={{ userName, accessToken, setSession, removeSession, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );

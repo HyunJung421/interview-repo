@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { API_URL } from '@/constants/api';
 
 const axiosInstance = axios.create({
-  baseURL: '/interview-api',
+  baseURL: API_URL.BASE,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,7 +28,7 @@ const refresh = async () => {
         const refreshToken = localStorage.getItem('refreshToken');
         if(!refreshToken) throw new Error('Refresh token not found');
 
-        const response = await axios.post(API_URL.REFRESH, {refreshToken});
+        const response = await axios.post(API_URL.BASE + API_URL.REFRESH, {refreshToken});
         const { newAccessToken } = response.data.accessToken;
         const { newRefreshToken} = response.data.refreshToken;
 
@@ -63,7 +63,7 @@ axiosInstance.interceptors.response.use(
                 // refresh 실패 → 로그아웃 처리
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = '/login';
+                window.location.href = API_URL.LOGIN;
                 return Promise.reject(refreshError);
             }
         }
