@@ -24,6 +24,10 @@ public enum ResultCode {
     UNAUTHORIZED_ACCESS(401, "E00010", "Unauthorized access"),
     UNAUTHORIZED_USER(401, "E00011", "Unauthorized user"),
 
+    // common
+    INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),
+    TEST_ERROR(400, "E10001", "Test error"),
+
     // user
     DUPLICATE_ID(400, "E20003", "Id is already taken"),
     DUPLICATE_EMAIL(400, "E20004", "Email is already taken"),
@@ -37,9 +41,8 @@ public enum ResultCode {
     USER_NOT_FOUND(404, "E20012", "User not found"),
     ROLE_NOT_FOUND(404, "E20013", "Role not found"),
 
-    // common
-    INTERNAL_SERVER_ERROR(500, "E10000", "Internal server error"),
-    TEST_ERROR(400, "E10001", "Test error");
+    // interview
+    INTERVIEW_NOT_FOUND(404, "E30001", "Interview not found");
 
     private final int status;
     private final String code;

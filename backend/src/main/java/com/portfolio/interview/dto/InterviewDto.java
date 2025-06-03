@@ -37,6 +37,14 @@ public class InterviewDto {
         }    
     }
 
+    // 면접 질문 상세 조회 Response
+    public record InterviewDetailResponse(
+        String category,
+        String title,
+        String content,
+        Boolean bookmarked
+    ){}
+
     // 면접 질문 등록 Request
     public record AddRequest(
         String category, 
