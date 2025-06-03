@@ -1,7 +1,6 @@
 package com.portfolio.interview.system.exception;
 
 import com.portfolio.interview.system.enums.ResultCode;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

@@ -39,7 +39,7 @@ public class Interview {
     @JoinColumn(name = "user_seq", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_seq", nullable = false)
     private Categories categories;
 
