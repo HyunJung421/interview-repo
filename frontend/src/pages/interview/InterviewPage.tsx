@@ -27,8 +27,13 @@ const InterviewPage: React.FC = () => {
         setQuestions(res.data.list);
         setTotalCount(res.data.pageInfo.totalCount);
       } catch (err: unknown) {
-        if(err.response.data.code == 'E10000') {
-          setError('요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        if (err && typeof err === 'object' && 'response' in err) {
+          const error = err as { response?: { data?: { code?: string } } };
+          if (error.response?.data?.code === 'E10000') {
+            setError('요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+          } else {
+            setError('질문 목록을 불러오지 못했습니다.');
+          }
         } else {
           setError('질문 목록을 불러오지 못했습니다.');
         }
