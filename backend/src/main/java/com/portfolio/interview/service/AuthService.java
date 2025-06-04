@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.portfolio.interview.dto.AuthDto;
-import com.portfolio.interview.dto.LoginDto;
-import com.portfolio.interview.dto.LogoutDto;
 import com.portfolio.interview.repository.RefreshTokenRepository;
 import com.portfolio.interview.security.JwtUtil;
 import com.portfolio.interview.system.enums.ResultCode;
@@ -31,7 +29,7 @@ public class AuthService {
     private Long refreshTokenTimeOut;
 
     // 로그인 처리
-    public AuthDto.Response login(LoginDto.Request loginRequest) {
+    public AuthDto.Response login(AuthDto.LoginRequest loginRequest) {
         String id = loginRequest.id();
         String password = loginRequest.password();
 
@@ -56,8 +54,8 @@ public class AuthService {
     }
 
     // 리프레시 토큰 처리
-    public AuthDto.Response refresh(LoginDto.Request loginRequest) {
-        String refreshToken = loginRequest.refreshToken();
+    public AuthDto.Response refresh(AuthDto.RefreshRequest refreshRequest) {
+        String refreshToken = refreshRequest.refreshToken();
 
         // Refresh Token 유효성 검사
         jwtUtil.validateRefreshToken(refreshToken);
@@ -74,8 +72,8 @@ public class AuthService {
     }
 
     // 로그아웃 처리
-    public LogoutDto.Response logout(LoginDto.Request loginRequest) {
-        String refreshToken = loginRequest.refreshToken();
+    public AuthDto.LogoutResponse logout(AuthDto.LogoutRequest logoutRequest) {
+        String refreshToken = logoutRequest.refreshToken();
 
         // Refresh Token 유효성 검사
         if (!StringUtils.hasText(refreshToken)) {
@@ -97,7 +95,7 @@ public class AuthService {
 
         // 성공 조건 처리
         refreshTokenRepository.deleteRefreshToken(id);
-        return new LogoutDto.Response("Logout successfully");
+        return new AuthDto.LogoutResponse("Logout successfully");
     }
 
     // 토큰 생성
