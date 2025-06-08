@@ -1,5 +1,6 @@
 package com.portfolio.interview.system.advice;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -9,6 +10,7 @@ import com.portfolio.interview.system.exception.RestApiException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 

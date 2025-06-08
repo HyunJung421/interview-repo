@@ -1,7 +1,9 @@
 package com.portfolio.interview.controller;
 
+import com.portfolio.interview.controller.docs.InterviewControllerDocs;
 import com.portfolio.interview.dto.InterviewDto;
 import com.portfolio.interview.service.InterviewService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/interview")
 @RequiredArgsConstructor
-public class InterviewController {
+public class InterviewController implements InterviewControllerDocs {
     
     private final InterviewService interviewService;
 

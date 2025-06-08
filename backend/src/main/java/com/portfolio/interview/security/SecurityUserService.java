@@ -1,15 +1,14 @@
 package com.portfolio.interview.security;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
 import com.portfolio.interview.entity.User;
 import com.portfolio.interview.system.enums.ResultCode;
 import com.portfolio.interview.system.exception.RestApiException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SecurityUserService {
-    
+
     private CustomUserDetails getPrincipal() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

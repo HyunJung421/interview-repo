@@ -1,5 +1,6 @@
 package com.portfolio.interview.system.advice;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,12 +13,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import com.portfolio.interview.system.dto.ResponseWrapper;
 import com.portfolio.interview.system.enums.ResultCode;
 
+@Hidden
 @RestControllerAdvice
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        return true;
+        // Swagger 관련 요청은 제외
+        return !returnType.getContainingClass().getName().contains("springdoc") &&
+                !returnType.getContainingClass().getName().contains("swagger");
     }
 
     @Override
@@ -34,5 +38,5 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
         response.setStatusCode(HttpStatus.OK);
         return ResponseWrapper.of(ResultCode.SUCCESS.getCode(), true, body);
     }
-    
+
 }
