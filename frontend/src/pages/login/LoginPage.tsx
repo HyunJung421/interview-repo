@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth'; 
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { login } from '@/api/loginApi';
 import { PATH } from '@/constants/path';
 
 const LoginPage = () => {
   const { setSession, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [id, setId] = useState('');
+  const [id, setId] = useState(location.state?.foundId || '');
   const [idValid, setIdValid] = useState<boolean>(false);
   const [password, setPassword] = useState('');
   const [pwValid, setPwValid] = useState<boolean>(false);
@@ -24,11 +25,18 @@ const LoginPage = () => {
       setError(null);
       setSession(res.data.accessToken, res.data.refreshToken, id);
       navigate(PATH.INTERVIEW);
-    } catch (err: unknown) {
-      if(err.response.data.code == 'E10000') {
-        setError('요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+    // catch 블록 수정
+    catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const error = err as { response?: { data?: { code?: string } } };
+        if (error.response?.data?.code === 'E10000') {
+          setError('요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+        } else {
+          setError('질문 목록을 불러오지 못했습니다.');
+        }
       } else {
-        setError('아이디 또는 비밀번호가 틀렸습니다.');
+        setError('질문 목록을 불러오지 못했습니다.');
       }
     }
   };
@@ -43,7 +51,7 @@ const LoginPage = () => {
       navigate(PATH.INTERVIEW);
     }
   }, [isAuthenticated, navigate]);
-  
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
@@ -56,6 +64,7 @@ const LoginPage = () => {
               id="username"
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="아이디"
+              value={id}
               onChange={e => setId(e.target.value)}
             />
           </div>
@@ -78,7 +87,9 @@ const LoginPage = () => {
           </button>
         </form>
         <div className="mt-4 text-center text-gray-500 text-sm">
-          <a href="#" className="hover:underline text-gray-500">아이디 찾기</a> | <a href="#" className="hover:underline text-gray-500">비밀번호 찾기</a> | <a href="#" className="hover:underline text-gray-500">회원가입</a>
+          <Link to={PATH.FIND_ID} className="hover:underline text-gray-500">아이디 찾기</Link> |
+          <Link to={PATH.FIND_PASSWORD} className="hover:underline text-gray-500">비밀번호 찾기</Link> |
+          <a href="#" className="hover:underline text-gray-500">회원가입</a>
         </div>
       </div>
     </div>
