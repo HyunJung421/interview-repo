@@ -23,3 +23,11 @@ export type InterviewList = {
     list: InterviewListItem[];
     pageInfo: PageInfo;
 };
+
+export type InterviewDetail = {
+    key: string;
+    category: 'FRONTEND' | 'BACKEND';
+    title: string;
+    content: string;
+    bookmarked: boolean;
+}

@@ -13,4 +13,5 @@ export const API_URL = {
 
     // Interview
     INTERVIEW_LIST: '/interview',
+    INTERVIEW_DETAIL: (key: string) => `/interview/${key}`,
 }

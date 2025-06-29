@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { API_URL } from '@/constants/api';
+import { PATH } from '@/constants/path';
 
 const axiosInstance = axios.create({
   baseURL: API_URL.BASE,
@@ -63,7 +64,7 @@ axiosInstance.interceptors.response.use(
                 // refresh 실패 → 로그아웃 처리
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                window.location.href = API_URL.LOGIN;
+                window.location.href = PATH.LOGIN; // 로그인 페이지로 이동
                 return Promise.reject(refreshError);
             }
         }

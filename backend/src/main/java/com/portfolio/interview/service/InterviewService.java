@@ -48,7 +48,7 @@ public class InterviewService {
 
         Boolean bookmarked = bookmarksRepository.existsByInterviewSeq(interview.getSeq());
 
-        InterviewDto.InterviewDetailResponse result = new InterviewDto.InterviewDetailResponse(interview.getCategories().getName(), interview.getTitle(), interview.getContent(), bookmarked);
+        InterviewDto.InterviewDetailResponse result = new InterviewDto.InterviewDetailResponse(interview.getKey().toString(), interview.getCategories().getName(), interview.getTitle(), interview.getContent(), bookmarked);
 
         return result;
     }

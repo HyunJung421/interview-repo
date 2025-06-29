@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { getInterviewList } from '@/api/interviewApi';
 import { InterviewListItem } from '@/types/interview';
+import { useNavigate } from 'react-router-dom';
+import { PATH } from '@/constants/path';
 
 const PER_PAGE = 10;
 
 const InterviewPage: React.FC = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [questions, setQuestions] = useState<InterviewListItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -83,6 +86,7 @@ const InterviewPage: React.FC = () => {
             <div
               key={i}
               className="border rounded-lg flex items-center gap-4 bg-white shadow"
+              onClick={() => navigate(PATH.INTERVIEW_DETAIL.replace(':key', q.key))}
             >
               <span
                 className={`text-middle text-center font-bold w-[120px] px-4 py-3 rounded-l-lg ${q.category === 'FRONTEND' ? 'bg-lime text-green' : 'bg-babyblue text-navy'}`}

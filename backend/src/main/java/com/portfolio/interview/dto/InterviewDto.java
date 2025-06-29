@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class InterviewDto {
-    
+
     // 면접 질문 조회 Request
     public record ListRequest(
-        String title, 
-        String category, 
+        String title,
+        String category,
         Boolean bookmarked,
         int currentPage,
         int perPage
@@ -27,18 +27,19 @@ public class InterviewDto {
 
     // 면접 질문 조회 Response > list
     public record InterviewInfo(
-        String key, 
+        String key,
         String category,
         String title,
         LocalDateTime updatedAt
     ){
         public InterviewInfo(UUID key, String category, String title, LocalDateTime updatedAt) {
             this(key.toString(), category, title, updatedAt);
-        }    
+        }
     }
 
     // 면접 질문 상세 조회 Response
     public record InterviewDetailResponse(
+        String key,
         String category,
         String title,
         String content,
@@ -47,8 +48,8 @@ public class InterviewDto {
 
     // 면접 질문 등록 Request
     public record AddRequest(
-        String category, 
-        String title, 
+        String category,
+        String title,
         String content){}
 
     // 면접 질문 등록 Response
