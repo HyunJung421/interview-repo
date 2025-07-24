@@ -1,5 +1,6 @@
 package com.portfolio.interview.controller;
 
+import com.portfolio.interview.controller.docs.AuthControllerDocs;
 import com.portfolio.interview.dto.AuthDto;
 import com.portfolio.interview.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
     private final AuthService authService;
 
     /**
