@@ -1,5 +1,6 @@
 package com.portfolio.interview.controller;
 
+import com.portfolio.interview.controller.docs.UserControllerDocs;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/user")
 @Slf4j
-public class UserController {
+public class UserController implements UserControllerDocs {
     private final UserService userService;
 
     /**
